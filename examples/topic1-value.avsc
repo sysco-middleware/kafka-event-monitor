@@ -1,0 +1,14 @@
+{
+  "type": "record",
+  "name": "Status1Record",
+  "fields": [
+    {
+      "type": "string",
+      "name": "id"
+    },
+    {
+      "type": "int",
+      "name": "value"
+    }
+  ]
+}

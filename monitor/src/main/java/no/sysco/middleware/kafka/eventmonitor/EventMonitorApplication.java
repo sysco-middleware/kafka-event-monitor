@@ -1,6 +1,5 @@
 package no.sysco.middleware.kafka.eventmonitor;
 
-import no.sysco.middleware.kafka.eventmonitor.stream.MonitorStream;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
 
