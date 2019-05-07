@@ -90,6 +90,7 @@ public class MonitorStreamBuilder {
                             historyStore.put(eventTransition.id(), history.serialize());
                         } else {
                             var history = EventHistory.create(eventTransition.id(), transitions);
+                            history.addTransition(eventTransition);
                             historyStore.put(eventTransition.id(), history.serialize());
                         }
                     }

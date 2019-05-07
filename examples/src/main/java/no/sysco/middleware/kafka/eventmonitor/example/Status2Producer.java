@@ -13,7 +13,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import java.io.File;
 import java.util.Properties;
 
-public class Status1Producer {
+public class Status2Producer {
     public static void main(String[] args) throws Exception {
         var producerConfigs = new Properties();
         producerConfigs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:29092");
@@ -29,7 +29,7 @@ public class Status1Producer {
         value.put("id", "125");
         value.put("value", 3);
 
-        var record = new ProducerRecord<String, GenericRecord>("topic1", "key", value);
+        var record = new ProducerRecord<String, GenericRecord>("topic2", "key", value);
         var metadata = producer.send(record).get();
         System.out.println(metadata);
     }

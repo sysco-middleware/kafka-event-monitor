@@ -35,13 +35,17 @@ public class EventHistory {
         return Stream.of(serialized.split("\\|"))
                 .map(s -> s.split(":"))
                 .map(p -> new Transition(p[0], Long.valueOf(p[1])))
-                .collect(Collectors.toUnmodifiableList());
+                .collect(Collectors.toList());
     }
 
     public String serialize() {
         return transitions.stream()
                 .map(t -> t.name.concat(":").concat(String.valueOf(t.timestamp)))
                 .collect(Collectors.joining("|"));
+    }
+
+    public void addTransition(EventTransition eventTransition) {
+        this.transitions.add(new Transition(eventTransition.name, eventTransition.timestamp));
     }
 
     static class Transition {
