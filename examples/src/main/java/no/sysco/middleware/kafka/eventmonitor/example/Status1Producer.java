@@ -1,6 +1,5 @@
 package no.sysco.middleware.kafka.eventmonitor.example;
 
-import io.confluent.kafka.serializers.AbstractKafkaAvroSerDe;
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.streams.serdes.avro.GenericAvroSerializer;
 import org.apache.avro.Schema;

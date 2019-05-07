@@ -3,10 +3,7 @@ package no.sysco.middleware.kafka.eventmonitor;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 class EventMonitorConfig {
@@ -14,11 +11,13 @@ class EventMonitorConfig {
     final KafkaConfig kafka;
     final List<EventTopicConfig> topics;
     final SchemaRegistryConfig schemaRegistry;
+    final HttpConfig http;
 
-    EventMonitorConfig(KafkaConfig kafka, List<EventTopicConfig> topics, SchemaRegistryConfig schemaRegistry) {
+    EventMonitorConfig(KafkaConfig kafka, List<EventTopicConfig> topics, SchemaRegistryConfig schemaRegistry, HttpConfig http) {
         this.kafka = kafka;
         this.topics = topics;
         this.schemaRegistry = schemaRegistry;
+        this.http = http;
     }
 
     static EventMonitorConfig load() {
@@ -28,22 +27,48 @@ class EventMonitorConfig {
                 .map(EventTopicConfig::load)
                 .collect(Collectors.toList());
         final var schemaRegistry = SchemaRegistryConfig.load(config.getConfig("event-monitor.schema-registry"));
-        return new EventMonitorConfig(kafka, topics, schemaRegistry);
+        final var http = HttpConfig.load(config.getConfig("event-monitor.http"));
+        return new EventMonitorConfig(kafka, topics, schemaRegistry, http);
     }
 
     public Collection<String> eventTopics() {
         return topics.stream().map(EventTopicConfig::name).collect(Collectors.toList());
     }
 
+    public Map<String, String> topicAndStatusMap() {
+        return topics.stream().collect(Collectors.toMap(topic -> topic.name, topic -> topic.status));
+    }
+
+    public Map<String, String> topicAndIdKeyMap() {
+        return topics.stream().collect(Collectors.toMap(topic -> topic.name, topic -> topic.id.key));
+    }
+
     static class KafkaConfig {
         final String bootstrapServers;
+        final StreamsConfig streams;
 
-        KafkaConfig(String bootstrapServers) {
+        KafkaConfig(String bootstrapServers, StreamsConfig streams) {
             this.bootstrapServers = bootstrapServers;
+            this.streams = streams;
         }
 
         static KafkaConfig load(Config kafka) {
-            return new KafkaConfig(kafka.getString("bootstrap-servers"));
+            var streams = StreamsConfig.load(kafka.getConfig("streams"));
+            return new KafkaConfig(kafka.getString("bootstrap-servers"), streams);
+        }
+
+        static class StreamsConfig {
+            final String applicationId;
+            final String stateDir;
+
+            StreamsConfig(String applicationId, String stateDir) {
+                this.applicationId = applicationId;
+                this.stateDir = stateDir;
+            }
+
+            static StreamsConfig load(Config config) {
+                return new StreamsConfig(config.getString("application-id"), config.getString("state-dir"));
+            }
         }
     }
 
@@ -103,22 +128,34 @@ class EventMonitorConfig {
     }
 
     static class ParseConfig {
-        final Source source;
+//        final Source source;
         final String key;
 
-        ParseConfig(Source source, String key) {
-            this.source = source;
+        ParseConfig(String key) {
+//            this.source = source;
             this.key = key;
         }
 
         static ParseConfig load(Config config) {
-            final var source = config.getEnum(Source.class, "source");
+//            final var source = config.getEnum(Source.class, "source");
             final var key = config.getString("key");
-            return new ParseConfig(source, key);
+            return new ParseConfig(key);
         }
 
-        public enum Source {
-            VALUE, HEADER, KEY
+//        public enum Source {
+//            VALUE, HEADER, KEY
+//        }
+    }
+
+    static class HttpConfig {
+        final int port;
+
+        HttpConfig(int port) {
+            this.port = port;
+        }
+
+        static HttpConfig load(Config config) {
+            return new HttpConfig(config.getInt("port"));
         }
     }
 }

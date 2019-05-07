@@ -6,8 +6,8 @@ package no.sysco.middleware.kafka.eventmonitor;
 public class EventMonitorMain {
     public static void main(String[] args) {
         try {
-            EventMonitorConfig config = EventMonitorConfig.load();
-            EventMonitorApplication app = new EventMonitorApplication(config);
+            var config = EventMonitorConfig.load();
+            var app = new EventMonitorApplication(config);
             app.run();
             Runtime.getRuntime().addShutdownHook(new Thread(app::close));
         } catch (Exception e) {
