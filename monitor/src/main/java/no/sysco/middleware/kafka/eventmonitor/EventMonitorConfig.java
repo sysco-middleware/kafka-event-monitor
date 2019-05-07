@@ -13,10 +13,12 @@ class EventMonitorConfig {
 
     final KafkaConfig kafka;
     final List<EventTopicConfig> topics;
+    final SchemaRegistryConfig schemaRegistry;
 
-    EventMonitorConfig(KafkaConfig kafka, List<EventTopicConfig> topics) {
+    EventMonitorConfig(KafkaConfig kafka, List<EventTopicConfig> topics, SchemaRegistryConfig schemaRegistry) {
         this.kafka = kafka;
         this.topics = topics;
+        this.schemaRegistry = schemaRegistry;
     }
 
     static EventMonitorConfig load() {
@@ -25,7 +27,8 @@ class EventMonitorConfig {
         final var topics = config.getConfigList("event-monitor.topics").stream()
                 .map(EventTopicConfig::load)
                 .collect(Collectors.toList());
-        return new EventMonitorConfig(kafka, topics);
+        final var schemaRegistry = SchemaRegistryConfig.load(config.getConfig("event-monitor.schema-registry"));
+        return new EventMonitorConfig(kafka, topics, schemaRegistry);
     }
 
     public Collection<String> eventTopics() {
@@ -41,6 +44,18 @@ class EventMonitorConfig {
 
         static KafkaConfig load(Config kafka) {
             return new KafkaConfig(kafka.getString("bootstrap-servers"));
+        }
+    }
+
+    static class SchemaRegistryConfig {
+        final String url;
+
+        SchemaRegistryConfig(String url) {
+            this.url = url;
+        }
+
+        static SchemaRegistryConfig load(Config config) {
+            return new SchemaRegistryConfig(config.getString("url"));
         }
     }
 
