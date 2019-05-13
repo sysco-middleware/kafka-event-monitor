@@ -7,32 +7,33 @@ import com.linecorp.armeria.server.AbstractHttpService;
 import com.linecorp.armeria.server.Server;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.server.ServiceRequestContext;
+import no.sysco.middleware.kafka.eventmonitor.core.EventHistory;
 import no.sysco.middleware.kafka.eventmonitor.storage.EventHistoryStore;
 
 public class MonitorServerBuilder {
 
-    final EventHistoryStore store;
-    final int port;
+  final EventHistoryStore store;
+  final int port;
 
-    final Gson gson;
+  final Gson gson;
 
-    public MonitorServerBuilder(EventHistoryStore store, int port) {
-        this.store = store;
-        this.port = port;
-        this.gson = new Gson();
-    }
+  public MonitorServerBuilder(EventHistoryStore store, int port) {
+    this.store = store;
+    this.port = port;
+    this.gson = new Gson();
+  }
 
-    public Server build() {
-        final var builder = new ServerBuilder();
-        builder.http(port);
-        builder.service("/monitor/events/{event_id}", new AbstractHttpService() {
-            @Override
-            protected HttpResponse doGet(ServiceRequestContext ctx, HttpRequest req) throws Exception {
-                var eventId = ctx.pathParam("event_id");
-                var history = store.get(eventId);
-                return HttpResponse.of(gson.toJson(history));
-            }
-        });
-        return builder.build();
-    }
+  public Server build() {
+    final ServerBuilder builder = new ServerBuilder();
+    builder.http(port);
+    builder.service("/monitor/events/{event_id}", new AbstractHttpService() {
+      @Override
+      protected HttpResponse doGet(ServiceRequestContext ctx, HttpRequest req) throws Exception {
+        String eventId = ctx.pathParam("event_id");
+        EventHistory history = store.get(eventId);
+        return HttpResponse.of(gson.toJson(history));
+      }
+    });
+    return builder.build();
+  }
 }

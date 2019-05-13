@@ -19,7 +19,7 @@ public class EventHistoryStore {
     }
 
     public EventHistory get(String eventId) {
-        var transitions = store().get(eventId);
+        String transitions = store().get(eventId);
         if (transitions == null) return null;
         else return EventHistory.create(eventId, transitions);
     }

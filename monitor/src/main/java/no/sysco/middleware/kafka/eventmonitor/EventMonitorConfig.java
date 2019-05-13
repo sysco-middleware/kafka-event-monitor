@@ -21,13 +21,13 @@ class EventMonitorConfig {
     }
 
     static EventMonitorConfig load() {
-        final var config = ConfigFactory.load();
-        final var kafka = KafkaConfig.load(config.getConfig("event-monitor.kafka"));
-        final var topics = config.getConfigList("event-monitor.topics").stream()
+        final Config config = ConfigFactory.load();
+        final KafkaConfig kafka = KafkaConfig.load(config.getConfig("event-monitor.kafka"));
+        final List<EventTopicConfig> topics = config.getConfigList("event-monitor.topics").stream()
                 .map(EventTopicConfig::load)
                 .collect(Collectors.toList());
-        final var schemaRegistry = SchemaRegistryConfig.load(config.getConfig("event-monitor.schema-registry"));
-        final var http = HttpConfig.load(config.getConfig("event-monitor.http"));
+        final SchemaRegistryConfig schemaRegistry = SchemaRegistryConfig.load(config.getConfig("event-monitor.schema-registry"));
+        final HttpConfig http = HttpConfig.load(config.getConfig("event-monitor.http"));
         return new EventMonitorConfig(kafka, topics, schemaRegistry, http);
     }
 
@@ -53,7 +53,7 @@ class EventMonitorConfig {
         }
 
         static KafkaConfig load(Config kafka) {
-            var streams = StreamsConfig.load(kafka.getConfig("streams"));
+            StreamsConfig streams = StreamsConfig.load(kafka.getConfig("streams"));
             return new KafkaConfig(kafka.getString("bootstrap-servers"), streams);
         }
 
@@ -90,10 +90,10 @@ class EventMonitorConfig {
         }
 
         static EventTopicConfig load(Config config) {
-            final var name = config.getString("name");
-            final var status = config.getString("status");
-            final var id = ParseConfig.load(config.getConfig("id"));
-            final var metadata =
+            final String name = config.getString("name");
+            final String status = config.getString("status");
+            final ParseConfig id = ParseConfig.load(config.getConfig("id"));
+            final Set<ParseConfig> metadata =
                     config.hasPath("metadata") ?
                             config.getConfigList("metadata").stream()
                                     .map(ParseConfig::load)
@@ -138,7 +138,7 @@ class EventMonitorConfig {
 
         static ParseConfig load(Config config) {
 //            final var source = config.getEnum(Source.class, "source");
-            final var key = config.getString("key");
+            final String key = config.getString("key");
             return new ParseConfig(key);
         }
 

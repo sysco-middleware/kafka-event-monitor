@@ -17,9 +17,9 @@ public class EventTransitionAdapter {
     }
 
     public EventTransition event(ProcessorContext context, GenericRecord genericRecord) {
-        final var idKey = topicAndIdKeyMap.get(context.topic());
-        final var idUtf8 = (Utf8) genericRecord.get(idKey);
-        final var id = new String(idUtf8.getBytes());
+        final String idKey = topicAndIdKeyMap.get(context.topic());
+        final Utf8 idUtf8 = (Utf8) genericRecord.get(idKey);
+        final String id = new String(idUtf8.getBytes());
         return new EventTransition(id, topicAndStatusMap.get(context.topic()), context.timestamp());
     }
 }
